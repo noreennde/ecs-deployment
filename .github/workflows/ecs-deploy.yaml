@@ -21,7 +21,7 @@ jobs:
               with:
                  distribution: "adopt"
                  java-version: "11"
-                 ##use maven to package artifact,when these step execute the artifact should be createdd
+                 ##use maven to package artifact,when these step execute the artifact should be created
             - name: build artifact with maven
               run: mvn package
               ##use sonarqube to do code analysis.Ensure that you have a sonarqube server runing and you have created a project
