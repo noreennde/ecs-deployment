@@ -2,7 +2,6 @@ name: Deploy to ECS
 on:
     push:
       branches:
-        main
     workflow_dispatch:
 jobs:
     buildanddeploytoecs:
@@ -38,7 +37,7 @@ jobs:
                 aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
                 aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
                 aws-region: ${{secrets.AWS_REGION}}
-                ##this action permit github actions to login into amazon ecr
+                ##this action permit github actions to login into amazon elastic compute registry
             - name: Login into ECR
               id: login-ecr
               uses: aws-action/amazon-ecr-login@v1
