@@ -10,8 +10,7 @@ jobs:
              contents: read
              packages: write
 
-        steps:
-    ## checking code
+        step:
             - name: checkout code from repo
               uses: actions/checkout@v3
               ##setup java and maven
