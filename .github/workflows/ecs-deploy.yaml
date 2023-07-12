@@ -2,9 +2,10 @@ name: Deploy to ECS
 on:
     push:
       branches:
+        main
     workflow_dispatch:
 jobs:
-    buildanddeploytoecs:
+   buildanddeploytoecs:
         runs-on: ubuntu-latest
         permissions:
              contents: read
