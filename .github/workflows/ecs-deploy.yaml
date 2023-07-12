@@ -40,7 +40,7 @@ jobs:
         - name: login to Amazon ECR
           id: login-ecr
           uses: aws-action/amazon-ecr-login@v1
-      ##contanerise artifact with mavev,tag and push to ecr repository.
+      ##contanerise artifact with mavev,tag and push to ecr repos.
         - name: build,tag and push
           id: build-image
           env:
