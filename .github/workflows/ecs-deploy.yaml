@@ -1,55 +1,55 @@
-name: Deploy to ECS
+name: deploy to ecs
 on:
     push:
       branches:
         main
     workflow_dispatch:
 jobs:
-    buildanddeploytoecs:
-        runs-on: ubuntu-latest
-        permissions:
-             contents: read
-             packages: write
+   buildeploytoecs:
+      runs-on: ubuntu-lastest
+      permissions:
+        contents: read
+        packages: write
+      steps:
+        - name: checkout code from repo
+          uses: actions/checkout@v3
+        ## setup java and maven
+        - name: setup java and maven
+          uses: actions/setup-java@v3
+          with: 
+             distribution: 'adopt'
+             java-version: '11'
+        - name: package with maven
+          run: mvn package
+        ## use sonarqube todo code analysis.Ensure your have a sonarqube server ruuning and you have created a project.
+        - name: code analysis with sonarqube
+          run:  mvn sonar:sonar  -Dsonar.projectKey=cicd-demo  -Dsonar.host.url=${{secrets.SONAR_HOST_URL}} -Dsonar.token=${{secrets.SONAR_LOGIN_TOKEN}}
+      ## upload to github pavkages
+        - name: upload to gothub packages
+          run: mvn --batch-mode deploy
+          env: 
+            GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        ## set up authenticate to aws
+        - name: authenticate to aws account
+          uses: aws-actions/configure-aws-credentials@v1
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+            aws-region: ${{secrets.AWS_REGION}}
+          ##this action permit github actions to login into amazon ecr  
+        - name: login to Amazon ECR
+          id: login-ecr
+          uses: aws-action/amazon-ecr-login@v1
+      ##contanerise artifact with mavev,tag and push to ecr repository.
+        - name: build,tag and push
+          id: build-image
+          env:
+            REGISTRY: ${{steps.login-ecr.outputs.registry}} 
+            REPOSITORY: ndeweb-app
+            IMAGE_TAG: ${{github.sha}} 
+          run:
+            docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+            docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+            echo "image=$REGISTRY/$REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUTS
+ 
 
-        steps:
-        ##clone the code from the repository
-            - name: checkout code from repo
-              uses: actions/checkout@v3
-              ##setup java and maven
-            - name: setup the java and maven environment
-              uses: actions/setup-java@v3
-              with:
-                 distribution: "adopt"
-                 java-version: "11"
-                 ##use maven to package artifact,when these step execute the artifact should be createdd
-            - name: build artifact with maven
-              run: mvn package
-              ##use sonarqube to do code analysis.Ensure that you have a sonarqube server runing and you have created a project
-            - name: perform code analysis with sonarqube
-              run: mvn sonar:sonar  -Dsonar.projectKey=cicd-demo  -Dsonar.host.url=${{secrets.SONAR_HOST_URL}} -Dsonar.token=${{secrets 
-              ##upload to gitup packages
-            - name: deploy to github packages
-              run: mvn --batch-mode deploy
-              env: 
-                GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-            - name: authenticate to aws account
-              uses: aws-actions/configure-aws-credentials@v1
-              with:
-                aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-                aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-                aws-region: ${{secrets.AWS_REGION}}
-                ##this action permit github actions to login into amazon ecr
-            - name: Login into ECR
-              id: login-ecr
-              uses: aws-action/amazon-ecr-login@v1
-              ##contanerise artifact with mavev,tag and push to ecr repository
-            -name: build,tag, and push
-              id: build-image
-              env:
-                REGISTRY: ${{steps.login-ecr.outputs.registry}}
-                REPOSITORY: ndeweb-app 
-                IMAGE_TAG: ${{github.sha}} 
-              
-                docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
-                docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
-                echo "image=$REGISTRY/$REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUTS
