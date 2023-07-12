@@ -41,7 +41,7 @@ jobs:
           id: login-ecr
           uses: aws-action/amazon-ecr-login@v1
       ##contanerise artifact with mavev,tag and push to ecr repos.
-        - name: build,tag and push
+        - name: Build, tag and push
           id: build-image
           env:
             REGISTRY: ${{steps.login-ecr.outputs.registry}} 
@@ -50,6 +50,6 @@ jobs:
           run:
             docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
             docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
-            echo "image=$REGISTRY/$REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUTS
+            echo "image=$REGISTRY/$REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
  
 
