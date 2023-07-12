@@ -24,7 +24,7 @@ jobs:
         ## use sonarqube todo code analysis.Ensure your have a sonarqube server ruuning and you have created a project.
         - name: code analysis with sonarqube
           run:  mvn sonar:sonar  -Dsonar.projectKey=cicd-demo  -Dsonar.host.url=${{secrets.SONAR_HOST_URL}} -Dsonar.token=${{secrets.SONAR_LOGIN_TOKEN}}
-      ## upload to github pavkages
+      ## upload to github packages
         - name: upload to github packages
           run: mvn --batch-mode deploy
           env: 
